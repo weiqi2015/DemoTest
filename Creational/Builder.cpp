@@ -1,71 +1,76 @@
 #include <iostream>
 #include <string>
 
-class Computer {
+class House {
 public:
-    void SetDisplay(std::string display) {
-        m_display = display;
-    };
-
-    void SetMainFrame(std::string mainframe) {
-        m_mainframe = mainframe;
-    }
-
-    void SetKeyboard(std::string keyboard) {
-        m_keyboard = keyboard;
-    }
-
-    void Work() {
-        if (m_display.empty() || m_mainframe.empty() || m_keyboard.empty()) {
-            std::cout << "computer cannot work!" << std::endl;
-            return;
-        }
-
-        std::cout << m_display << "MainFrame is working!" << std::endl;
-        std::cout << m_mainframe << "Display is working!" << std::endl;
-        std::cout << m_keyboard << "Keyboard is working!" << std::endl;
-        std::cout << "computer is working!" << std::endl;
-    }
+    void SetFoundation(std::string str) {}
+    void SetContour(std::string str) {}
+    void SetInterior(std::string str) {}
 
 private:
-    std::string m_display;    // 显示器
-    std::string m_mainframe;  // 主机
-    std::string m_keyboard;   // 键盘
+    std::string m_foundation;  // 地基
+    std::string m_contour;     // 轮廓
+    std::string m_interior;    // 内饰
 };
 
-class ComputerBuilder {
+class HouseBuilder {
 public:
-    virtual void      BuildDisplay()   = 0;
-    virtual void      BuildMainFrame() = 0;
-    virtual void      BuildKeyboard()  = 0;
-    virtual Computer* Getcomputer()    = 0;
+    virtual bool   BuildPart1() = 0;
+    virtual bool   BuildPart2() = 0;
+    virtual bool   BuildPart3() = 0;
+    virtual House* GetResult()  = 0;
 
 protected:
-    Computer* m_product;
+    House* m_product;
 };
 
-class ComputerSBuilder : public ComputerBuilder {
+class StoneHouseSBuilder : public HouseBuilder {
 public:
-    ComputerSBuilder() {
-        m_product = new Computer;
+    StoneHouseSBuilder() {
+        m_product = new House;
     }
-    virtual void BuildDisplay() {
-        m_product->SetDisplay("sss");
+    virtual bool BuildPart1() {
+        m_product->SetFoundation("Stone");
+        return true;
     }
-    virtual void BuildMainFrame() {
-        m_product->SetMainFrame("sss");
+    virtual bool BuildPart2() {
+        m_product->SetContour("Stone");
+        return true;
     }
-    virtual void BuildKeyboard() {
-        m_product->SetKeyboard("sss");
+    virtual bool BuildPart3() {
+        m_product->SetInterior("Stone");
+        return true;
     }
-    virtual Computer* Getcomputer() {
+    virtual House* GetResult() {
+        return m_product;
+    }
+};
+
+class WoodenHouseSBuilder : public HouseBuilder {
+public:
+    WoodenHouseSBuilder() {
+        m_product = new House;
+    }
+    virtual bool BuildPart1() {
+        m_product->SetFoundation("Wooden");
+        return true;
+    }
+    virtual bool BuildPart2() {
+        m_product->SetContour("Wooden");
+        return true;
+    }
+    virtual bool BuildPart3() {
+        m_product->SetInterior("Wooden");
+        return true;
+    }
+    virtual House* GetResult() {
         return m_product;
     }
 };
 
 class Director {
 public:
-    Director(ComputerBuilder* builder) {
+    Director(HouseBuilder* builder) {
         m_builder = builder;
     }
 
@@ -73,23 +78,30 @@ public:
         delete m_builder;
     }
 
-    Computer* Construct() {
-        m_builder->BuildDisplay();
-        m_builder->BuildMainFrame();
-        m_builder->BuildKeyboard();
-        return m_builder->Getcomputer();
+    // 建造者侧重点，导演指挥建造者生成
+    House* Construct() {
+        if (m_builder->BuildPart1())          // 有地基才能开始建轮廓
+            if (m_builder->BuildPart2())      // 有轮廓才能开始装修
+                if (m_builder->BuildPart3())  // 装修完才能提交房子
+                {
+                    std::cout << "建造成功，提交房子！" << std::endl;
+                    return m_builder->GetResult();
+                }
+
+        std::cout << "建造失败！" << std::endl;
+        return nullptr;
     }
 
 private:
-    ComputerBuilder* m_builder;
+    HouseBuilder* m_builder;
 };
 
 int main(int argc, char const* argv[]) {
-    Director* d = new Director(new ComputerSBuilder);
-    Computer* c = d->Construct();
-    c->Work();
+    Director* d = new Director(new WoodenHouseSBuilder);
+    House*    h = d->Construct();
 
-    delete c;
+    delete h;
     delete d;
+
     return 0;
 }

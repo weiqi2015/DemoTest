@@ -1,94 +1,94 @@
 #include <iostream>
 #include <string>
 
-class Computer {
+class House {
 public:
-    void SetDisplay(std::string display) {
-        m_display = display;
-    };
-
-    void SetMainFrame(std::string mainframe) {
-        m_mainframe = mainframe;
-    }
-
-    void SetKeyboard(std::string keyboard) {
-        m_keyboard = keyboard;
-    }
-
-    void Work() {
-        if (m_display.empty() || m_mainframe.empty() || m_keyboard.empty()) {
-            std::cout << "computer cannot work!" << std::endl;
-            return;
-        }
-
-        std::cout << m_display << "MainFrame is working!" << std::endl;
-        std::cout << m_mainframe << "Display is working!" << std::endl;
-        std::cout << m_keyboard << "Keyboard is working!" << std::endl;
-        std::cout << "computer is working!" << std::endl;
-    }
+    void SetFoundation(std::string str) {}
+    void SetContour(std::string str) {}
+    void SetInterior(std::string str) {}
 
 private:
-    std::string m_display;    // 显示器
-    std::string m_mainframe;  // 主机
-    std::string m_keyboard;   // 键盘
+    std::string m_foundation;  // 地基
+    std::string m_contour;     // 轮廓
+    std::string m_interior;    // 内饰
 };
 
-class ComputerBuilder {
+class HouseBuilder {
 public:
-    virtual ComputerBuilder* BuildDisplay(std::string)   = 0;
-    virtual ComputerBuilder* BuildMainFrame(std::string) = 0;
-    virtual ComputerBuilder* BuildKeyboard(std::string)  = 0;
-    virtual Computer*        Getcomputer()               = 0;
+    virtual HouseBuilder* BuildPart1(std::string str) = 0;
+    virtual HouseBuilder* BuildPart2(std::string str) = 0;
+    virtual HouseBuilder* BuildPart3(std::string str) = 0;
+    virtual House*        GetResult()                 = 0;
 
 protected:
-    Computer* m_product;
+    House* m_product;
 };
 
-class ComputerSBuilder : public ComputerBuilder {
+class HouseSBuilder : public HouseBuilder {
 public:
-    ComputerSBuilder() {}
+    HouseSBuilder() {}
 
-    virtual ComputerBuilder* BuildDisplay(std::string display = "A") {
-        m_display = display;
+    virtual HouseBuilder* BuildPart1(std::string str) {
+        m_foundation = str;
         return this;
     }
 
-    virtual ComputerBuilder* BuildMainFrame(std::string mainframe = "A") {
-        m_mainframe = mainframe;
+    virtual HouseBuilder* BuildPart2(std::string str) {
+        m_contour = str;
         return this;
     }
 
-    virtual ComputerBuilder* BuildKeyboard(std::string keyboard = "A") {
-        m_keyboard = keyboard;
+    virtual HouseBuilder* BuildPart3(std::string str) {
+        m_interior = str;
         return this;
     }
 
-    virtual Computer* Getcomputer() {
-        Computer* c = new Computer;
-        c->SetDisplay(m_display);
-        c->SetMainFrame(m_mainframe);
-        c->SetKeyboard(m_keyboard);
+    virtual House* GetResult() {
+        // 生成过程
+        House* h    = nullptr;
+        bool   flag = false;
 
-        return c;
+        if (!m_foundation.empty()) {
+            h = new House;
+            h->SetFoundation(m_foundation);
+
+            if (!m_contour.empty()) {
+                h->SetContour(m_contour);
+
+                if (!m_interior.empty()) {
+                    h->SetInterior(m_interior);
+                    flag = true;
+
+                    std::cout << "建造成功，提交房子！" << std::endl;
+                }
+            }
+        }
+
+        if (!flag) {
+            std::cout << "建造失败！" << std::endl;
+            if (h) {
+                delete h;
+                h = nullptr;
+            }
+        }
+
+        return h;
     }
 
 private:
-    std::string m_display   = "A";  // 显示器
-    std::string m_mainframe = "A";  // 主机
-    std::string m_keyboard  = "A";  // 键盘
+    std::string m_foundation;  // 地基
+    std::string m_contour;     // 轮廓
+    std::string m_interior;    // 内饰
 };
 
 int main(int argc, char const* argv[]) {
-    ComputerBuilder* builder = new ComputerSBuilder;
+    HouseBuilder* builder = new HouseSBuilder;
 
-    Computer* c = builder->BuildDisplay("A")->BuildMainFrame("B")->BuildKeyboard("C")->Getcomputer();
-    c->Work();
+    House* c = builder->BuildPart1("A")->BuildPart2("B")->BuildPart3("C")->GetResult();
 
-    Computer* c1 = builder->BuildDisplay("A1")->BuildMainFrame("B1")->BuildKeyboard("C1")->Getcomputer();
-    c1->Work();
-
-    delete c1;
-    delete c;
+    if (c) {
+        delete c;
+    }
 
     return 0;
 }
