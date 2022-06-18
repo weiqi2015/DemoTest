@@ -85,3 +85,15 @@ BuilderChained.cpp
 可以将标配的作为原型，克隆出低配和高配的产品
 
 Prototype.cpp
+
+## 单例模式
+当对象在系统中只能存在一个实例，才能确保它的逻辑正确性和效率时，请使用单例模式。
+
+### 饿汉式
+SingletonEager.cpp
+
+### 懒汉式-加锁、双重判断、reorder问题处理
+SingletonEager.cpp
+
+### 懒汉式 Magic static
+SingletonClassicLazy
